@@ -12,3 +12,5 @@ require (
 	gorm.io/gorm v1.21.11
 	xorm.io/xorm v1.1.0
 )
+
+replace github.com/si3nloong/sqlike => /Users/sianloong/Developers/opensource/sqlike

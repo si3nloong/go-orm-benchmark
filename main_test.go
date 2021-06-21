@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"log"
 	"testing"
 	"time"
 
@@ -12,21 +11,13 @@ import (
 	"gorm.io/gorm"
 	"xorm.io/xorm"
 
-	"github.com/si3nloong/sqlike/sqlike"
-	"github.com/si3nloong/sqlike/sqlike/options"
+	"github.com/si3nloong/sqlike"
+	"github.com/si3nloong/sqlike/options"
 	db "github.com/upper/db/v4"
 	uppermy "github.com/upper/db/v4/adapter/mysql"
 
 	"github.com/jmoiron/sqlx"
 )
-
-type User struct {
-	ID        string    `gorm:"column:ID" xorm:"ID"`
-	Name      string    `gorm:"column:Name" xorm:"Name"`
-	Age       int       `gorm:"column:Age" xorm:"Age"`
-	Status    string    `gorm:"column:Status" xorm:"Status"`
-	CreatedAt time.Time `gorm:"column:CreatedAt" xorm:"CreatedAt"`
-}
 
 var (
 	ctx = context.Background()
@@ -194,7 +185,6 @@ func BenchmarkTestSqlxSingle_Insert(b *testing.B) {
 				"createdAt": user.CreatedAt.Format("2006-01-02 15:04:05"),
 			},
 		); err != nil {
-			log.Println(err)
 			b.FailNow()
 		}
 	}
@@ -226,7 +216,6 @@ func BenchmarkTestSqlxMultiple_Insert(b *testing.B) {
 		(:id, :name, :age, :status, :createdAt)`,
 			datas,
 		); err != nil {
-			log.Println(err)
 			b.FailNow()
 		}
 	}
