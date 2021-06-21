@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"strings"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -11,7 +12,7 @@ import (
 	"github.com/si3nloong/sqlike/actions"
 	"github.com/si3nloong/sqlike/options"
 	"github.com/si3nloong/sqlike/sql/expr"
-	"github.com/si3nloong/sqlike/sql/stmt"
+	sqlstmt "github.com/si3nloong/sqlike/sql/stmt"
 )
 
 type User struct {
@@ -32,6 +33,8 @@ func (l Logger) Debug(stmt *sqlstmt.Statement) {
 
 func main() {
 
+	query := "INSERT INTO `users` (`ID`, `Name`, `Age`, `Status`, `CreatedAt`) VALUES " + strings.Repeat(",(?,?,?,?,?)", 25)[1:] + ";"
+	log.Println(query)
 	ctx := context.Background()
 	client := sqlike.MustConnect(
 		ctx,

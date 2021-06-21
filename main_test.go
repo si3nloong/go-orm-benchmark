@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"database/sql"
+	"strings"
 	"testing"
 	"time"
 
@@ -21,6 +23,7 @@ import (
 
 var (
 	ctx = context.Background()
+	db0 *sql.DB
 	db1 *gorm.DB
 	db2 *sqlike.Database
 	db3 *xorm.Engine
@@ -34,6 +37,11 @@ func init() {
 	db1, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
 		Logger: nil,
 	})
+	if err != nil {
+		panic("failed to connect database")
+	}
+
+	db0, err = sql.Open("mysql", dsn)
 	if err != nil {
 		panic("failed to connect database")
 	}
@@ -116,33 +124,6 @@ func BenchmarkTestGormMultiple_Insert(b *testing.B) {
 	}
 }
 
-func BenchmarkTestSqlikeSingle_Insert(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		if _, err := db2.Table("users").InsertOne(
-			ctx,
-			newUser(),
-		); err != nil {
-			b.FailNow()
-		}
-	}
-}
-
-func BenchmarkTestSqlikeMultiple_Insert(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		if _, err := db2.Table("users").Insert(
-			ctx,
-			&[]*User{
-				newUser(), newUser(), newUser(), newUser(), newUser(),
-				newUser(), newUser(), newUser(), newUser(), newUser(),
-				newUser(), newUser(), newUser(), newUser(), newUser(),
-				newUser(), newUser(), newUser(), newUser(), newUser(),
-				newUser(), newUser(), newUser(), newUser(), newUser(),
-			}); err != nil {
-			b.FailNow()
-		}
-	}
-}
-
 func BenchmarkTestXormSingle_Insert(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		if _, err := db3.Table("users").InsertOne(
@@ -216,6 +197,87 @@ func BenchmarkTestSqlxMultiple_Insert(b *testing.B) {
 		(:id, :name, :age, :status, :createdAt)`,
 			datas,
 		); err != nil {
+			b.FailNow()
+		}
+	}
+}
+
+func BenchmarkTestSqlikeSingle_Insert(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		if _, err := db2.Table("users").InsertOne(
+			ctx,
+			newUser(),
+		); err != nil {
+			b.FailNow()
+		}
+	}
+}
+
+func BenchmarkTestSqlikeMultiple_Insert(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		if _, err := db2.Table("users").Insert(
+			ctx,
+			&[]*User{
+				newUser(), newUser(), newUser(), newUser(), newUser(),
+				newUser(), newUser(), newUser(), newUser(), newUser(),
+				newUser(), newUser(), newUser(), newUser(), newUser(),
+				newUser(), newUser(), newUser(), newUser(), newUser(),
+				newUser(), newUser(), newUser(), newUser(), newUser(),
+			}); err != nil {
+			b.FailNow()
+		}
+	}
+}
+
+func BenchmarkTestMySQLSingle_Insert(b *testing.B) {
+	ctx := context.TODO()
+	stmt, err := db0.Prepare("INSERT INTO `users` (`ID`, `Name`, `Age`, `Status`, `CreatedAt`) VALUES (?,?,?,?,?);")
+	if err != nil {
+		b.FailNow()
+	}
+
+	for i := 0; i < b.N; i++ {
+		user := newUser()
+		if _, err := stmt.ExecContext(
+			ctx,
+			user.ID,
+			user.Name,
+			user.Age,
+			user.Status,
+			user.CreatedAt,
+		); err != nil {
+			b.FailNow()
+		}
+	}
+}
+
+func BenchmarkTestMySQLMultiple_Insert(b *testing.B) {
+	// ctx := context.TODO()
+	query := "INSERT INTO `users` (`ID`, `Name`, `Age`, `Status`, `CreatedAt`) VALUES " + strings.Repeat(",(?,?,?,?,?)", 25)[1:] + ";"
+	stmt, err := db0.Prepare(query)
+	if err != nil {
+		b.FailNow()
+	}
+
+	for i := 0; i < b.N; i++ {
+		users := []*User{
+			newUser(), newUser(), newUser(), newUser(), newUser(),
+			newUser(), newUser(), newUser(), newUser(), newUser(),
+			newUser(), newUser(), newUser(), newUser(), newUser(),
+			newUser(), newUser(), newUser(), newUser(), newUser(),
+			newUser(), newUser(), newUser(), newUser(), newUser(),
+		}
+
+		datas := make([]interface{}, 0)
+		for _, user := range users {
+			datas = append(datas, user.ID)
+			datas = append(datas, user.Name)
+			datas = append(datas, user.Age)
+			datas = append(datas, user.Status)
+			datas = append(datas, user.CreatedAt)
+		}
+
+		if _, err := stmt.ExecContext(ctx, datas...); err != nil {
 			b.FailNow()
 		}
 	}
