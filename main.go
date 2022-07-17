@@ -8,11 +8,11 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 
-	"github.com/si3nloong/sqlike"
-	"github.com/si3nloong/sqlike/actions"
-	"github.com/si3nloong/sqlike/options"
 	"github.com/si3nloong/sqlike/sql/expr"
 	sqlstmt "github.com/si3nloong/sqlike/sql/stmt"
+	"github.com/si3nloong/sqlike/sqlike"
+	"github.com/si3nloong/sqlike/sqlike/actions"
+	"github.com/si3nloong/sqlike/sqlike/options"
 )
 
 type User struct {

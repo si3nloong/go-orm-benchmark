@@ -13,8 +13,8 @@ import (
 	"gorm.io/gorm"
 	"xorm.io/xorm"
 
-	"github.com/si3nloong/sqlike"
-	"github.com/si3nloong/sqlike/options"
+	"github.com/si3nloong/sqlike/sqlike"
+	"github.com/si3nloong/sqlike/sqlike/options"
 	db "github.com/upper/db/v4"
 	uppermy "github.com/upper/db/v4/adapter/mysql"
 
