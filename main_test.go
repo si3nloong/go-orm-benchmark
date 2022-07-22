@@ -29,6 +29,7 @@ var (
 	db3 *xorm.Engine
 	db4 db.Session
 	db5 *sqlx.DB
+	// db6 *v2.Database
 )
 
 func init() {
@@ -81,6 +82,17 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
+
+	// db6 = v2.MustConnect(
+	// 	ctx,
+	// 	"mysql",
+	// 	v2opts.Connect().
+	// 		SetUsername("root").
+	// 		SetPassword("abcd1234").
+	// 		SetHost("localhost").
+	// 		SetPort("3306"),
+	// ).Database("sqlike")
+
 }
 
 func newUser() (u *User) {
